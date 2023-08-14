@@ -1,0 +1,6 @@
+# Ignore project-specific cache directory
+.gradle
+build
+.idea
+bin
+
