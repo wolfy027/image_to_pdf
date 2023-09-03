@@ -1,4 +1,4 @@
-package imageToPdf;
+package pdf.utilities;
 
 import java.io.File;
 import java.math.BigInteger;

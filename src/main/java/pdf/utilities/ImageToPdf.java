@@ -1,4 +1,4 @@
-package imageToPdf;
+package pdf.utilities;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class ImageToPdf {
-    private static final float FACTOR = 0.5f;
 
     public static void main(String arg[]) throws Exception {
         File root = new File("./setup/input");
