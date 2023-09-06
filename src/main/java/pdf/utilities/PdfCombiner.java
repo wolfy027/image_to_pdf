@@ -8,12 +8,13 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class PdfCombiner {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         File root = new File("./setup/pdf_input");
         File[] pdfFiles = root.listFiles();
         Arrays.sort(pdfFiles, new FilenameComparator());
 
         String outputFilePath = "./setup/pdf_output/merged.pdf"; // Output file path
+        String outputCompressedFilePath = "./setup/pdf_output/merged-compressed.pdf"; // Output file path
 
         try {
             mergePDFs(pdfFiles, outputFilePath);
@@ -21,6 +22,7 @@ public class PdfCombiner {
         } catch (IOException e) {
             System.err.println("Error merging PDFs: " + e.getLocalizedMessage());
         }
+        PdfUtils.compressPdfWithPdfBox(outputFilePath, outputCompressedFilePath);
     }
 
     public static void mergePDFs(File[] pdfFiles, String outputFilePath) throws IOException {
