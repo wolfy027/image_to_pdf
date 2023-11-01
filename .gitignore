@@ -4,3 +4,9 @@ build
 .idea
 bin
 setup/**/**
+**/*.pdf
+/setup/
+/setup/input/
+/setup/output/
+/setup/pdf_input/
+/setup/pdf_output/
