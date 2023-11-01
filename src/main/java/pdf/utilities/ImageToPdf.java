@@ -20,7 +20,7 @@ public class ImageToPdf {
         String outputFile = "output.pdf";
         File[] files = root.listFiles();
         Arrays.sort(files, new FilenameComparator());
-        logger.log(Level.INFO, "File count : {}", files.length);
+        logger.log(Level.INFO, "File count : {0}", files.length);
 
         Document document = new Document();
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(new File("./setup/output", outputFile)));
