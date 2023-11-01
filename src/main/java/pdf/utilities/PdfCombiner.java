@@ -6,8 +6,12 @@ import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 public class PdfCombiner {
+
+    static Logger logger = Logger.getLogger(PdfCombiner.class.getName());
+
     public static void main(String[] args) throws IOException {
         File root = new File("./setup/pdf_input");
         File[] pdfFiles = root.listFiles();
@@ -18,9 +22,9 @@ public class PdfCombiner {
 
         try {
             mergePDFs(pdfFiles, outputFilePath);
-            System.out.println("PDFs merged successfully.");
+            logger.info("PDFs merged successfully.");
         } catch (IOException e) {
-            System.err.println("Error merging PDFs: " + e.getLocalizedMessage());
+            logger.warning("Error merging PDFs: " + e.getLocalizedMessage());
         }
         PdfUtils.compressPdfWithPdfBox(outputFilePath, outputCompressedFilePath);
     }

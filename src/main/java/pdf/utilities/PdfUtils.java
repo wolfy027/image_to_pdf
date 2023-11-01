@@ -20,27 +20,38 @@ import java.io.IOException;
 
 public class PdfUtils {
 
+    private PdfUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static void compressPdfWithPdfBox(String src, String dest) throws IOException {
-        PDDocument pdDocument = new PDDocument();
-        PDDocument oDocument = PDDocument.load(new File(src));
-        PDFRenderer pdfRenderer = new PDFRenderer(oDocument);
-        int numberOfPages = oDocument.getNumberOfPages();
-        PDPage page = null;
+        PDDocument pdDocument = null;
+        PDPageContentStream contentStream = null;
+        try {
+            pdDocument = new PDDocument();
+            PDDocument oDocument = PDDocument.load(new File(src));
+            PDFRenderer pdfRenderer = new PDFRenderer(oDocument);
+            int numberOfPages = oDocument.getNumberOfPages();
+            PDPage page = null;
 
-        for (int i = 0; i < numberOfPages; i++) {
-            page = new PDPage(PDRectangle.LETTER);
-            BufferedImage bim = pdfRenderer.renderImageWithDPI(i, 100, ImageType.RGB);
-            PDImageXObject pdImage = JPEGFactory.createFromImage(pdDocument, bim);
-            PDPageContentStream contentStream = new PDPageContentStream(pdDocument, page);
-            float newHeight = PDRectangle.LETTER.getHeight();
-            float newWidth = PDRectangle.LETTER.getWidth();
-            contentStream.drawImage(pdImage, 0, 0, newWidth, newHeight);
+            for (int i = 0; i < numberOfPages; i++) {
+                page = new PDPage(PDRectangle.LETTER);
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(i, 100, ImageType.RGB);
+                PDImageXObject pdImage = JPEGFactory.createFromImage(pdDocument, bim);
+                contentStream = new PDPageContentStream(pdDocument, page);
+                float newHeight = PDRectangle.LETTER.getHeight();
+                float newWidth = PDRectangle.LETTER.getWidth();
+                contentStream.drawImage(pdImage, 0, 0, newWidth, newHeight);
+                contentStream.close();
+
+                pdDocument.addPage(page);
+            }
+            pdDocument.save(dest);
+        } finally {
             contentStream.close();
-
-            pdDocument.addPage(page);
+            pdDocument.close();
         }
-        pdDocument.save(dest);
-        pdDocument.close();
+
     }
 
     public static void compressPdfWithItext(String src, String dest) throws IOException, DocumentException {

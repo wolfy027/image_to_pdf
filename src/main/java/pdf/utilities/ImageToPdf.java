@@ -8,15 +8,19 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ImageToPdf {
 
-    public static void main(String arg[]) throws Exception {
+    static Logger logger = Logger.getLogger(ImageToPdf.class.getName());
+
+    public static void main(String[] arg) throws Exception {
         File root = new File("./setup/input");
         String outputFile = "output.pdf";
         File[] files = root.listFiles();
         Arrays.sort(files, new FilenameComparator());
-        System.out.println(files.length);
+        logger.log(Level.INFO, "File count : {}", files.length);
 
         Document document = new Document();
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(new File("./setup/output", outputFile)));
@@ -25,7 +29,7 @@ public class ImageToPdf {
         for (File file : files) {
             document.newPage();
             Image image = Image.getInstance(file.getAbsolutePath());
-            System.out.println(file.getAbsolutePath());
+            logger.info(file.getAbsolutePath());
             image.setAbsolutePosition(0, 0);
             image.setBorderWidth(0);
             image.scaleAbsolute(PageSize.A4);
