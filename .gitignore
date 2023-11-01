@@ -3,6 +3,7 @@
 build
 .idea
 bin
+setup
 setup/**/**
 **/*.pdf
 /setup/
