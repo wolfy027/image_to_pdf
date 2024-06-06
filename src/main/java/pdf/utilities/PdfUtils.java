@@ -36,7 +36,7 @@ public class PdfUtils {
 
             for (int i = 0; i < numberOfPages; i++) {
                 page = new PDPage(PDRectangle.LETTER);
-                BufferedImage bim = pdfRenderer.renderImageWithDPI(i, 100, ImageType.RGB);
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(i, 150, ImageType.RGB);
                 PDImageXObject pdImage = JPEGFactory.createFromImage(pdDocument, bim);
                 contentStream = new PDPageContentStream(pdDocument, page);
                 float newHeight = PDRectangle.LETTER.getHeight();
