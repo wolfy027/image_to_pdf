@@ -25,33 +25,24 @@ public class PdfUtils {
     }
 
     public static void compressPdfWithPdfBox(String src, String dest) throws IOException {
-        PDDocument pdDocument = null;
-        PDPageContentStream contentStream = null;
-        try {
-            pdDocument = new PDDocument();
-            PDDocument oDocument = PDDocument.load(new File(src));
+        try (PDDocument pdDocument = new PDDocument();
+                PDDocument oDocument = PDDocument.load(new File(src))) {
             PDFRenderer pdfRenderer = new PDFRenderer(oDocument);
             int numberOfPages = oDocument.getNumberOfPages();
-            PDPage page = null;
 
             for (int i = 0; i < numberOfPages; i++) {
-                page = new PDPage(PDRectangle.LETTER);
+                PDPage page = new PDPage(PDRectangle.LETTER);
                 BufferedImage bim = pdfRenderer.renderImageWithDPI(i, 150, ImageType.RGB);
                 PDImageXObject pdImage = JPEGFactory.createFromImage(pdDocument, bim);
-                contentStream = new PDPageContentStream(pdDocument, page);
-                float newHeight = PDRectangle.LETTER.getHeight();
-                float newWidth = PDRectangle.LETTER.getWidth();
-                contentStream.drawImage(pdImage, 0, 0, newWidth, newHeight);
-                contentStream.close();
-
+                try (PDPageContentStream contentStream = new PDPageContentStream(pdDocument, page)) {
+                    float newHeight = PDRectangle.LETTER.getHeight();
+                    float newWidth = PDRectangle.LETTER.getWidth();
+                    contentStream.drawImage(pdImage, 0, 0, newWidth, newHeight);
+                }
                 pdDocument.addPage(page);
             }
             pdDocument.save(dest);
-        } finally {
-            contentStream.close();
-            pdDocument.close();
         }
-
     }
 
     public static void compressPdfWithItext(String src, String dest) throws IOException, DocumentException {
