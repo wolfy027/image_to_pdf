@@ -18,10 +18,8 @@ public class PdfCombiner {
     public static void main(String[] args) {
         try {
             File root = new File(DEFAULT_INPUT_ROOT);
-            File outputDir = new File(DEFAULT_OUTPUT_DIR);
-
-            if (!outputDir.exists() && !outputDir.mkdirs()) {
-                logger.severe("Could not create output directory: " + DEFAULT_OUTPUT_DIR);
+            File outputDir = PdfUtils.setupOutputDirectory(DEFAULT_OUTPUT_DIR, logger);
+            if (outputDir == null) {
                 return;
             }
 

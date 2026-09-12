@@ -12,8 +12,18 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class PdfUtils {
+
+    public static File setupOutputDirectory(String outputDirPath, Logger logger) {
+        File outputDir = new File(outputDirPath);
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            logger.severe("Could not create output directory: " + outputDirPath);
+            return null;
+        }
+        return outputDir;
+    }
 
     private PdfUtils() {
         throw new IllegalStateException("Utility class");
