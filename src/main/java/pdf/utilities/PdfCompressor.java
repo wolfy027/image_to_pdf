@@ -13,18 +13,22 @@ public class PdfCompressor {
     private static final String DEFAULT_OUTPUT_DIR = "./setup/pdf_output";
 
     public static void main(String[] args) {
+        processPdfs(DEFAULT_INPUT_ROOT, DEFAULT_OUTPUT_DIR);
+    }
+
+    static void processPdfs(String inputRootPath, String outputDirPath) {
         try {
-            File root = new File(DEFAULT_INPUT_ROOT);
-            File outputDir = new File(DEFAULT_OUTPUT_DIR);
+            File root = new File(inputRootPath);
+            File outputDir = new File(outputDirPath);
 
             if (!outputDir.exists() && !outputDir.mkdirs()) {
-                logger.severe("Could not create output directory: " + DEFAULT_OUTPUT_DIR);
+                logger.severe("Could not create output directory: " + outputDirPath);
                 return;
             }
 
             File[] pdfFiles = root.listFiles((dir, name) -> name.toLowerCase().endsWith(".pdf"));
             if (pdfFiles == null || pdfFiles.length == 0) {
-                logger.warning("No PDF files found in " + DEFAULT_INPUT_ROOT);
+                logger.warning("No PDF files found in " + inputRootPath);
                 return;
             }
             Arrays.sort(pdfFiles, new FilenameComparator());
