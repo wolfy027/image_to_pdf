@@ -79,7 +79,9 @@ public class ImageToPdf {
         String compressedFileName = inputDirectory.getName().concat("-compressed.pdf");
         PdfUtils.compressPdfWithPdfBox(
                 outFile.getAbsolutePath(),
-                new File(outputDirectory, compressedFileName).getAbsolutePath());
+                new File(outputDirectory, compressedFileName).getAbsolutePath(),
+                outputDirectory,
+                outputDirectory);
         logger.info("Created PDF: " + outputFileName + " and compressed version: " + compressedFileName);
     }
 

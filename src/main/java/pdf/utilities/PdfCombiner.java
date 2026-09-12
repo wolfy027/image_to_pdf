@@ -38,7 +38,7 @@ public class PdfCombiner {
             mergePDFs(pdfFiles, outputFilePath);
             logger.info("PDFs merged successfully into " + outputFilePath);
 
-            PdfUtils.compressPdfWithPdfBox(outputFilePath, outputCompressedFilePath);
+            PdfUtils.compressPdfWithPdfBox(outputFilePath, outputCompressedFilePath, outputDir.getAbsolutePath(), outputDir.getAbsolutePath());
             logger.info("Compressed PDF created at " + outputCompressedFilePath);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error during PDF merging or compression", e);

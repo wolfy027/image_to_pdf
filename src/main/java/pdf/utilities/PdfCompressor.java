@@ -32,7 +32,7 @@ public class PdfCompressor {
             for (File file : pdfFiles) {
                 String outputCompressedFilePath = new File(outputDir, "compressed-" + file.getName()).getAbsolutePath();
                 try {
-                    PdfUtils.compressPdfWithPdfBox(file.getAbsolutePath(), outputCompressedFilePath);
+                    PdfUtils.compressPdfWithPdfBox(file.getAbsolutePath(), outputCompressedFilePath, root.getAbsolutePath(), outputDir.getAbsolutePath());
                     logger.info("File " + file.getName() + " compressed successfully to " + outputCompressedFilePath);
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Failed to compress " + file.getName(), e);
