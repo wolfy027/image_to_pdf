@@ -1,9 +1,5 @@
 package pdf.utilities;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfStamper;
-import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -45,16 +41,4 @@ public class PdfUtils {
         }
     }
 
-    public static void compressPdfWithItext(String src, String dest) throws IOException, DocumentException {
-        PdfReader reader = new PdfReader(src);
-        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest), PdfWriter.VERSION_1_5);
-        stamper.getWriter().setCompressionLevel(9);
-        int total = reader.getNumberOfPages() + 1;
-        for (int i = 1; i < total; i++) {
-            reader.setPageContent(i, reader.getPageContent(i));
-        }
-        stamper.setFullCompression();
-        stamper.close();
-        reader.close();
-    }
 }
