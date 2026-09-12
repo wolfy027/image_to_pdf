@@ -46,8 +46,26 @@ public class PdfUtils {
     }
 
     public static void compressPdfWithItext(String src, String dest) throws IOException, DocumentException {
-        PdfReader reader = new PdfReader(src);
-        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest), PdfWriter.VERSION_1_5);
+        String baseDir = new File(".").getAbsolutePath();
+        compressPdfWithItext(src, dest, baseDir, baseDir);
+    }
+
+    public static void compressPdfWithItext(String src, String dest, String expectedSrcDir, String expectedDestDir) throws IOException, DocumentException {
+        File srcFile = new File(src);
+        File destFile = new File(dest);
+
+        File srcBase = new File(expectedSrcDir);
+        File destBase = new File(expectedDestDir);
+
+        if (!srcFile.getCanonicalPath().startsWith(srcBase.getCanonicalPath() + File.separator)) {
+            throw new IOException("Invalid source path: " + src);
+        }
+        if (!destFile.getCanonicalPath().startsWith(destBase.getCanonicalPath() + File.separator)) {
+            throw new IOException("Invalid destination path: " + dest);
+        }
+
+        PdfReader reader = new PdfReader(srcFile.getAbsolutePath());
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(destFile.getAbsolutePath()), PdfWriter.VERSION_1_5);
         stamper.getWriter().setCompressionLevel(9);
         int total = reader.getNumberOfPages() + 1;
         for (int i = 1; i < total; i++) {
