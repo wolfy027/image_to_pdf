@@ -1,12 +1,37 @@
 package pdf.utilities;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
 public final class FilenameComparator implements Comparator<File> {
     private static final Pattern NUMBERS = Pattern.compile("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+
+    private int compareNumerically(String s1, String s2) {
+        int i1 = 0;
+        int i2 = 0;
+        int len1 = s1.length();
+        int len2 = s2.length();
+
+        while (i1 < len1 - 1 && s1.charAt(i1) == '0') i1++;
+        while (i2 < len2 - 1 && s2.charAt(i2) == '0') i2++;
+
+        int nLen1 = len1 - i1;
+        int nLen2 = len2 - i2;
+
+        if (nLen1 != nLen2) {
+            return nLen1 - nLen2;
+        }
+
+        for (int i = 0; i < nLen1; i++) {
+            char c1 = s1.charAt(i1 + i);
+            char c2 = s2.charAt(i2 + i);
+            if (c1 != c2) {
+                return c1 - c2;
+            }
+        }
+        return 0;
+    }
 
     @Override
     public int compare(File o1, File o2) {
@@ -24,10 +49,9 @@ public final class FilenameComparator implements Comparator<File> {
             char c2 = split2[i].charAt(0);
             int cmp = 0;
 
-            // If both segments start with a digit, sort them numerically using
-            // BigInteger to stay safe
+            // If both segments start with a digit, sort them numerically
             if (c1 >= '0' && c1 <= '9' && c2 >= '0' && c2 <= '9')
-                cmp = new BigInteger(split1[i]).compareTo(new BigInteger(split2[i]));
+                cmp = compareNumerically(split1[i], split2[i]);
 
             // If we haven't sorted numerically before, or if numeric sorting yielded
             // equality (e.g 007 and 7) then sort lexicographically
