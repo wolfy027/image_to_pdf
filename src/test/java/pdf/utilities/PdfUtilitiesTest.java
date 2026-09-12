@@ -27,6 +27,16 @@ class PdfUtilitiesTest {
     }
 
     @Test
+    void testFilenameComparatorNullEdgeCases() {
+        FilenameComparator comparator = new FilenameComparator();
+        File f1 = new File("img1.jpg");
+
+        assertTrue(comparator.compare(null, f1) < 0);
+        assertTrue(comparator.compare(f1, null) > 0);
+        assertTrue(comparator.compare(null, null) == 0);
+    }
+
+    @Test
     void testDirectoryCreationInMain() throws IOException {
         // Test if output directories are created as expected by the logic (mocking the
         // behavior)
