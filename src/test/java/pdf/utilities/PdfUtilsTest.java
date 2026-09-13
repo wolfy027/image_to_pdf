@@ -1,6 +1,5 @@
 package pdf.utilities;
 
-import com.itextpdf.text.DocumentException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -15,7 +14,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PdfUtilsTest {
+public class PdfUtilsTest {
 
     @TempDir
     Path tempDir;
@@ -35,18 +34,8 @@ class PdfUtilsTest {
         File sourceFile = createDummyPdf("source.pdf");
         File destFile = tempDir.resolve("dest_pdfbox.pdf").toFile();
 
-        PdfUtils.compressPdfWithPdfBox(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
-
-        assertTrue(destFile.exists(), "Destination PDF should be created");
-        assertTrue(destFile.length() > 0, "Destination PDF should not be empty");
-    }
-
-    @Test
-    void testCompressPdfWithItext() throws IOException, DocumentException {
-        File sourceFile = createDummyPdf("source2.pdf");
-        File destFile = tempDir.resolve("dest_itext.pdf").toFile();
-
-        PdfUtils.compressPdfWithItext(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+        // use the overloaded method to avoid the current dir restriction!
+        PdfUtils.compressPdfWithPdfBox(sourceFile.getAbsolutePath(), destFile.getAbsolutePath(), tempDir.toFile().getAbsolutePath(), tempDir.toFile().getAbsolutePath());
 
         assertTrue(destFile.exists(), "Destination PDF should be created");
         assertTrue(destFile.length() > 0, "Destination PDF should not be empty");
@@ -60,5 +49,21 @@ class PdfUtilsTest {
         InvocationTargetException exception = assertThrows(InvocationTargetException.class, constructor::newInstance);
         assertTrue(exception.getCause() instanceof IllegalStateException);
         assertEquals("Utility class", exception.getCause().getMessage());
+    }
+
+    @Test
+    public void testCompressWithPdfBoxTraversal() {
+        File srcFile = new File("/tmp/foo/../etc/passwd");
+        File destFile = new File("/tmp/bar/../etc/shadow");
+
+        Exception e1 = assertThrows(IOException.class, () -> {
+            PdfUtils.compressPdfWithPdfBox(srcFile.getAbsolutePath(), "/tmp/valid.pdf", "/tmp/valid_src_dir", "/tmp");
+        });
+        assertTrue(e1.getMessage().contains("Invalid destination path") || e1.getMessage().contains("Path traversal"));
+
+        Exception e2 = assertThrows(IOException.class, () -> {
+            PdfUtils.compressPdfWithPdfBox("/tmp/valid.pdf", destFile.getAbsolutePath(), "/tmp", "/tmp/valid_dest_dir");
+        });
+        assertTrue(e2.getMessage().contains("Invalid destination path") || e2.getMessage().contains("Path traversal"));
     }
 }

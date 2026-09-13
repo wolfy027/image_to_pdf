@@ -5,7 +5,13 @@ plugins {
 version = '0.0.1'
 
 repositories {
+    maven { url "https://repo1.maven.org/maven2" }
+    maven { url "https://jitpack.io" }
+    maven { url "https://packages.confluent.io/maven/" }
+    maven { url "https://maven.aliyun.com/repository/public" }
     mavenCentral()
+    mavenCentral()
+    mavenLocal()
 }
 
 dependencies {

@@ -13,16 +13,20 @@ public class PdfCompressor {
     private static final String DEFAULT_OUTPUT_DIR = "./setup/pdf_output";
 
     public static void main(String[] args) {
+        processPdfs(DEFAULT_INPUT_ROOT, DEFAULT_OUTPUT_DIR);
+    }
+
+    static void processPdfs(String inputRootPath, String outputDirPath) {
         try {
-            File root = new File(DEFAULT_INPUT_ROOT);
-            File outputDir = PdfUtils.setupOutputDirectory(DEFAULT_OUTPUT_DIR, logger);
+            File root = new File(inputRootPath);
+            File outputDir = PdfUtils.setupOutputDirectory(outputDirPath, logger);
             if (outputDir == null) {
                 return;
             }
 
             File[] pdfFiles = root.listFiles((dir, name) -> name.toLowerCase().endsWith(".pdf"));
             if (pdfFiles == null || pdfFiles.length == 0) {
-                logger.warning("No PDF files found in " + DEFAULT_INPUT_ROOT);
+                logger.warning("No PDF files found in " + inputRootPath);
                 return;
             }
             Arrays.sort(pdfFiles, new FilenameComparator());
@@ -30,7 +34,7 @@ public class PdfCompressor {
             for (File file : pdfFiles) {
                 String outputCompressedFilePath = new File(outputDir, "compressed-" + file.getName()).getAbsolutePath();
                 try {
-                    PdfUtils.compressPdfWithPdfBox(file.getAbsolutePath(), outputCompressedFilePath);
+                    PdfUtils.compressPdfWithPdfBox(file.getAbsolutePath(), outputCompressedFilePath, root.getAbsolutePath(), outputDir.getAbsolutePath());
                     logger.info("File " + file.getName() + " compressed successfully to " + outputCompressedFilePath);
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Failed to compress " + file.getName(), e);
