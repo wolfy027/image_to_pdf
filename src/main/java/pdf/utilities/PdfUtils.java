@@ -29,7 +29,29 @@ public class PdfUtils {
         throw new IllegalStateException("Utility class");
     }
 
+    private static void validatePath(String filePath, String expectedDir) throws IOException {
+        File file = new File(filePath);
+        File dir = new File(expectedDir);
+        String canonicalPath = file.getCanonicalPath();
+        String canonicalDir = dir.getCanonicalPath();
+
+        if (!canonicalDir.endsWith(File.separator)) {
+            canonicalDir += File.separator;
+        }
+
+        if (!canonicalPath.startsWith(canonicalDir)) {
+            throw new IOException("Invalid destination path: " + filePath + " vs " + expectedDir);
+        }
+    }
+
     public static void compressPdfWithPdfBox(String src, String dest) throws IOException {
+        String baseDir = new File(".").getAbsolutePath();
+        compressPdfWithPdfBox(src, dest, baseDir, baseDir);
+    }
+
+    public static void compressPdfWithPdfBox(String src, String dest, String expectedSrcDir, String expectedDestDir) throws IOException {
+        validatePath(src, expectedSrcDir);
+        validatePath(dest, expectedDestDir);
         try (PDDocument pdDocument = new PDDocument();
                 PDDocument oDocument = PDDocument.load(new File(src))) {
             PDFRenderer pdfRenderer = new PDFRenderer(oDocument);
@@ -49,5 +71,4 @@ public class PdfUtils {
             pdDocument.save(dest);
         }
     }
-
 }

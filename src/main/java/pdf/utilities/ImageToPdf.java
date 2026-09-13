@@ -1,14 +1,13 @@
 package pdf.utilities;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.pdf.PdfWriter;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,58 +26,46 @@ public class ImageToPdf {
                 return;
             }
 
-            File[] inputFolders = root.listFiles(File::isDirectory);
-            if (inputFolders == null) {
-                logger.warning("No input folders found in " + DEFAULT_INPUT_ROOT);
-                return;
-            }
-
-            for (File inputDirectory : inputFolders) {
-                String directoryName = inputDirectory.getName();
-                String outputFileName = directoryName.concat(".pdf");
-                makePdfFromFolder(inputDirectory, DEFAULT_OUTPUT_DIR, outputFileName);
+            File[] directories = root.listFiles(File::isDirectory);
+            if (directories == null) return;
+            for (File dir : directories) {
+                makePdfFromFolder(dir, outputDir.getAbsolutePath(), dir.getName() + ".pdf");
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "An error occurred during Image to PDF conversion", e);
+            logger.log(Level.SEVERE, "Error during batch PDF creation", e);
         }
     }
 
-    private static void makePdfFromFolder(File inputDirectory, String outputDirectory, String outputFileName)
-            throws DocumentException, IOException {
-        File[] files = inputDirectory.listFiles();
-        if (files == null || files.length == 0) {
-            logger.warning("No files found in directory: " + inputDirectory.getAbsolutePath());
+    private static void makePdfFromFolder(File inputDir, String outputDirPath, String outputFileName) throws Exception {
+        File[] imageFiles = inputDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg")
+                || name.toLowerCase().endsWith(".png"));
+
+        if (imageFiles == null || imageFiles.length == 0) {
+            logger.warning("No images found in " + inputDir.getAbsolutePath());
             return;
         }
-        Arrays.sort(files, new FilenameComparator());
-        logger.log(Level.INFO, "Processing {0} files in {1}", new Object[] { files.length, inputDirectory.getName() });
+        Arrays.sort(imageFiles, new FilenameComparator());
+        File outputDir = new File(outputDirPath);
 
-        Document document = new Document();
-        File outFile = new File(outputDirectory, outputFileName);
-        try (FileOutputStream fos = new FileOutputStream(outFile)) {
-            PdfWriter writer = PdfWriter.getInstance(document, fos);
-            writer.setFullCompression();
-            document.open();
-            for (File file : files) {
-                if (file.isDirectory())
-                    continue;
-                document.newPage();
-                Image image = Image.getInstance(file.getAbsolutePath());
-                logger.fine("Adding image: " + file.getAbsolutePath());
-                image.setAbsolutePosition(0, 0);
-                image.setBorderWidth(0);
-                image.scaleToFit(PageSize.A4.getWidth(), PageSize.A4.getHeight());
-                image.setCompressionLevel(9);
-                document.add(image);
+        try (PDDocument document = new PDDocument()) {
+            for (File file : imageFiles) {
+                PDPage page = new PDPage(PDRectangle.LETTER);
+                document.addPage(page);
+                PDImageXObject pdImage = JPEGFactory.createFromImage(document, javax.imageio.ImageIO.read(file));
+
+                try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                    float newHeight = PDRectangle.LETTER.getHeight();
+                    float newWidth = PDRectangle.LETTER.getWidth();
+                    contentStream.drawImage(pdImage, 0, 0, newWidth, newHeight);
+                }
             }
-            document.close();
+            String outputFilePath = new File(outputDir, outputFileName).getAbsolutePath();
+            document.save(outputFilePath);
+            logger.info("PDF created successfully at " + outputFilePath);
+            String outputCompressedFilePath = new File(outputDir, inputDir.getName() + "-compressed.pdf").getAbsolutePath();
+            PdfUtils.compressPdfWithPdfBox(outputFilePath, outputCompressedFilePath, outputDir.getAbsolutePath(), outputDir.getAbsolutePath());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to create PDF for folder " + inputDir.getName(), e);
         }
-
-        String compressedFileName = inputDirectory.getName().concat("-compressed.pdf");
-        PdfUtils.compressPdfWithPdfBox(
-                outFile.getAbsolutePath(),
-                new File(outputDirectory, compressedFileName).getAbsolutePath());
-        logger.info("Created PDF: " + outputFileName + " and compressed version: " + compressedFileName);
     }
-
 }
